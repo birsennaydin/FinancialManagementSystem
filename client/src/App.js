@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ExpenseChart from './components/ExpenseChart';
 import Login from './components/Login';
 import ExpenseForm from './components/ExpenseForm';
 import Dashboard from './components/Dashboard';
@@ -16,6 +17,7 @@ function App() {
       <LogoutButton setToken={setToken} />
       <ExpenseForm token={token} />
       <ExpenseList token={token} />
+      <ExpenseChart token={token} />
       <Dashboard token={token} />
     </div>
   );
