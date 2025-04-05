@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard';
 import ExpenseList from './components/ExpenseList';
 import LogoutButton from './components/LogoutButton';
 import MonthlyBarChart from './components/MonthlyBarChart';
+import BudgetAlert from './components/BudgetAlert';
+import SavingsAdvice from './components/SavingsAdvice';
 
 function App() {
   const [token, setToken] = useState('');
@@ -20,6 +22,8 @@ function App() {
       <ExpenseList token={token} />
       <ExpenseChart token={token} />
       <MonthlyBarChart token={token} />
+      <BudgetAlert token={token} />
+      <SavingsAdvice token={token} />
       <Dashboard token={token} />
     </div>
   );
