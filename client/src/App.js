@@ -8,6 +8,8 @@ import LogoutButton from './components/LogoutButton';
 import MonthlyBarChart from './components/MonthlyBarChart';
 import BudgetAlert from './components/BudgetAlert';
 import SavingsAdvice from './components/SavingsAdvice';
+import FinanceResources from './components/FinanceResources';
+import BudgetForm from './components/BudgetForm';
 
 function App() {
   const [token, setToken] = useState('');
@@ -16,15 +18,33 @@ function App() {
 
   return (
     <div>
-      <h1>SmartSpend</h1>
+      <div className="bg-red-500 text-white text-2xl p-6 rounded-lg shadow-lg">
+  This should be big, red and beautiful!
+</div>
+      <div className="bg-blue-500 text-white p-4 rounded-lg">
+        Tailwind is working! 🎉
+      </div>
+
       <LogoutButton setToken={setToken} />
-      <ExpenseForm token={token} />
-      <ExpenseList token={token} />
-      <ExpenseChart token={token} />
-      <MonthlyBarChart token={token} />
-      <BudgetAlert token={token} />
-      <SavingsAdvice token={token} />
-      <Dashboard token={token} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <BudgetForm token={token} />
+          <ExpenseForm token={token} />
+          <ExpenseList token={token} />
+        </div>
+        <div>
+          <ExpenseChart token={token} />
+          <MonthlyBarChart token={token} />
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <BudgetAlert token={token} />
+        <SavingsAdvice token={token} />
+        <FinanceResources />
+        <Dashboard token={token} />
+      </div>
     </div>
   );
 }

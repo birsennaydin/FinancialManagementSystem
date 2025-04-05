@@ -7,6 +7,8 @@ const dotenv = require('dotenv');
 const userRoutes = require('./routes/users');
 const expenseRoutes = require('./routes/expenses');
 const dashboardRoutes = require('./routes/dashboard');
+const resourceRoutes = require('./routes/resources');
+const budgetRoutes = require('./routes/budgets');
 
 dotenv.config();
 const app = express();
@@ -20,7 +22,8 @@ app.use(helmet());
 app.use('/api/users', userRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/resources', resourceRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 
 // MongoDB Bağlantısı

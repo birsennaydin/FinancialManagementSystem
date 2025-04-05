@@ -36,13 +36,15 @@ const BudgetAlert = ({ token }) => {
   }, [token, budgets]);
 
   return (
-    <div>
-      <h2>Budget Alerts</h2>
+    <div className="max-w-2xl mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Budget Alerts</h2>
       {alerts.length === 0 ? (
-        <p>All spending is within budget ✅</p>
+        <p className="text-green-600 font-medium">All spending is within budget ✅</p>
       ) : (
-        <ul style={{ color: 'red' }}>
-          {alerts.map((msg, idx) => <li key={idx}>{msg}</li>)}
+        <ul className="text-red-600 list-disc list-inside space-y-2">
+          {alerts.map((msg, idx) => (
+            <li key={idx}>{msg}</li>
+          ))}
         </ul>
       )}
     </div>
