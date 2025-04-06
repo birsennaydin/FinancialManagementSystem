@@ -37,6 +37,21 @@ export default function Expenses() {
     });
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5050/api/expenses/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setMessage("Expense deleted ✅");
+      fetchExpenses(); // Listeyi güncelle
+    } catch (err) {
+      console.error("Delete failed", err);
+      setMessage("Failed to delete expense ❌");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -125,6 +140,7 @@ export default function Expenses() {
               <th className="text-left p-2 border">Category</th>
               <th className="text-left p-2 border">Amount</th>
               <th className="text-left p-2 border">Date</th>
+              <th className="text-left p-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -140,6 +156,14 @@ export default function Expenses() {
                   <td className="p-2 border">{exp.category}</td>
                   <td className="p-2 border">${exp.amount.toFixed(2)}</td>
                   <td className="p-2 border">{new Date(exp.date).toLocaleDateString()}</td>
+                  <td className="p-2 border">
+                        <button
+                            onClick={() => handleDelete(exp._id)}
+                            className="text-red-600 hover:underline"
+                        >
+                            Delete
+                        </button>
+                  </td>
                 </tr>
               ))
             )}

@@ -28,3 +28,23 @@ exports.getExpenses = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.deleteExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Kayıt sadece o kullanıcıya aitse silinsin
+    const deleted = await Expense.findOneAndDelete({
+      _id: id,
+      user: req.user.id,
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Expense not found or unauthorized" });
+    }
+
+    res.json({ message: "Expense deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

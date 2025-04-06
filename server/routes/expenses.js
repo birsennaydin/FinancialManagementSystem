@@ -9,4 +9,6 @@ router.post('/', auth, expenseController.addExpense);
 // GET /api/expenses - Get all expenses for the logged-in user
 router.get('/', auth, expenseController.getExpenses);
 
+router.delete('/:id', auth, expenseController.deleteExpense);
+
 module.exports = router;
