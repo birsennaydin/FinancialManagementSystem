@@ -1,0 +1,28 @@
+[
+    {
+      "id": 1,
+      "title": "Track Your Spending",
+      "content": "Record your expenses to understand where your money goes and identify areas to cut back."
+    },
+    {
+      "id": 2,
+      "title": "Set a Monthly Budget",
+      "content": "Establish a realistic monthly budget to manage your income and expenses effectively."
+    },
+    {
+      "id": 3,
+      "title": "Save Before You Spend",
+      "content": "Pay yourself first by saving a portion of your income before spending on other things."
+    },
+    {
+      "id": 4,
+      "title": "Avoid Unnecessary Debt",
+      "content": "Only borrow what you can afford to repay and avoid high-interest debt like credit cards."
+    },
+    {
+      "id": 5,
+      "title": "Plan for Emergencies",
+      "content": "Build an emergency fund to cover unexpected expenses like car repairs or medical bills."
+    }
+  ]
+  

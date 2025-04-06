@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
+const axios = require('axios');
 
 const userRoutes = require('./routes/users');
 const expenseRoutes = require('./routes/expenses');
@@ -10,6 +11,7 @@ const dashboardRoutes = require('./routes/dashboard');
 const resourceRoutes = require('./routes/resources');
 const budgetRoutes = require('./routes/budgets');
 const categoryRoutes = require('./routes/categoryRoutes');
+const suggestionRoutes = require('./routes/suggestions');
 
 dotenv.config();
 const app = express();
@@ -26,6 +28,26 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/suggestions', suggestionRoutes);
+
+// Financial News Route (External API - Marketaux)
+app.get('/api/news', async (req, res) => {
+  try {
+    const response = await axios.get("https://api.marketaux.com/v1/news/all", {
+      params: {
+        api_token: process.env.MARKETAUX_API_KEY, // .env içinden alıyoruz
+        language: "en",
+        topic: "finance",
+        limit: 10,
+      },
+    });
+
+    res.json(response.data.data); // sadece haber listesini gönder
+  } catch (err) {
+    console.error("❌ News API error:", err.message);
+    res.status(500).json({ error: "Failed to fetch financial news" });
+  }
+});
 
 
 // MongoDB Bağlantısı

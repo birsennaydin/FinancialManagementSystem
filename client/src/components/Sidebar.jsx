@@ -6,6 +6,8 @@ const Sidebar = () => {
     { path: "/dashboard/expenses", label: "Expenses" },
     { path: "/dashboard/budgets", label: "Budgets" },
     { path: "/dashboard/categories", label: "Categories" },
+    { path: "/dashboard/financial", label: "FinancialTips" },
+    { path: "/dashboard/suggestions", label: "Suggestions" },
   ];
 
   return (

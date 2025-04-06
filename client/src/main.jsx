@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
 import Budgets from "./pages/Budgets";
 import Category from "./pages/Category";
+import FinancialTips from './pages/FinancialTips.jsx'
+import Suggestions from './pages/Suggestions.jsx' 
 import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')).render(
@@ -41,6 +43,16 @@ createRoot(document.getElementById('root')).render(
       <Route path="budgets" element={
         <ProtectedRoute>
           <Budgets />
+        </ProtectedRoute>
+      } />
+      <Route path="financial" element={
+        <ProtectedRoute>
+          <FinancialTips />
+        </ProtectedRoute>
+      } />
+      <Route path="suggestions" element={
+        <ProtectedRoute>
+          <Suggestions />
         </ProtectedRoute>
       } />
     </Route>
