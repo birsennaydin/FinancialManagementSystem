@@ -14,6 +14,7 @@ import Category from "./pages/Category";
 import FinancialTips from './pages/FinancialTips.jsx'
 import Suggestions from './pages/Suggestions.jsx' 
 import { AuthProvider } from './context/AuthContext';
+import Reminder from "./pages/Reminder";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -55,7 +56,12 @@ createRoot(document.getElementById('root')).render(
           <Suggestions />
         </ProtectedRoute>
       } />
-    </Route>
+      <Route path="reminder" element={
+              <ProtectedRoute>
+                <Reminder />
+              </ProtectedRoute>
+            } />
+      </Route>
       </Routes>
     </BrowserRouter>
     </AuthProvider>
