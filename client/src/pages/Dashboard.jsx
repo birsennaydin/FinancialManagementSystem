@@ -14,7 +14,6 @@ import {
   Legend,
 } from "chart.js";
 
-// Register required chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -26,13 +25,14 @@ ChartJS.register(
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
+  const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [startMonth, setStartMonth] = useState("2025-02");
   const [endMonth, setEndMonth] = useState("2025-04");
 
   const token = localStorage.getItem("token");
 
-  // Fetch expenses from backend
+  // Fetch expenses from API
   const fetchExpenses = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/expenses", {
@@ -44,7 +44,19 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch category list
+  // Fetch budgets from API
+  const fetchBudgets = async () => {
+    try {
+      const res = await axios.get("http://localhost:5050/api/budgets", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBudgets(res.data);
+    } catch (err) {
+      console.error("Failed to fetch budgets", err);
+    }
+  };
+
+  // Fetch categories from API
   const fetchCategories = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/categories", {
@@ -58,20 +70,31 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchExpenses();
+    fetchBudgets();
     fetchCategories();
   }, []);
 
-  // Find category name by ID
+  // Utility: get category name from ID
   const getCategoryName = (id) =>
     categories.find((c) => c._id === id)?.name || id;
 
-  // Filter expenses by selected month range
+  // Filter expenses based on month range
   const filteredExpenses = expenses.filter((e) => {
     const month = e.date.slice(0, 7);
     return month >= startMonth && month <= endMonth;
   });
 
-  // Group expenses by month
+  // Filter budgets based on month range
+  const filteredBudgets = budgets.filter(
+    (b) => b.month >= startMonth && b.month <= endMonth
+  );
+
+  // Calculate summary values
+  const totalIncome = filteredBudgets.reduce((sum, b) => sum + b.amount, 0);
+  const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const netBalance = totalIncome - totalExpenses;
+
+  // Group expenses by month for bar chart
   const monthlyTotals = {};
   filteredExpenses.forEach((e) => {
     const month = e.date.slice(0, 7);
@@ -89,7 +112,7 @@ export default function Dashboard() {
     ],
   };
 
-  // Group expenses by category
+  // Group expenses by category for pie chart
   const categoryTotals = {};
   filteredExpenses.forEach((e) => {
     const cat = e.category;
@@ -112,14 +135,14 @@ export default function Dashboard() {
     ],
   };
 
-  // Prepare CSV data
+  // Data for CSV export
   const csvData = filteredExpenses.map((exp) => ({
     Category: getCategoryName(exp.category),
     Amount: `$${exp.amount.toFixed(2)}`,
     Date: new Date(exp.date).toLocaleDateString(),
   }));
 
-  // Export to PDF
+  // Generate PDF file
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
@@ -145,7 +168,7 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto p-4">
       <h2 className="text-2xl font-bold text-center mb-6">Dashboard Overview</h2>
 
-      {/* Filter section */}
+      {/* Date Filter + Export Buttons */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4 mb-6">
         <input
           type="month"
@@ -174,7 +197,23 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Charts section */}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+        <div className="bg-blue-100 text-blue-800 p-4 rounded shadow">
+          <p className="font-semibold">Total Budget</p>
+          <p className="text-xl font-bold">${totalIncome.toFixed(2)}</p>
+        </div>
+        <div className="bg-red-100 text-red-800 p-4 rounded shadow">
+          <p className="font-semibold">Total Expenses</p>
+          <p className="text-xl font-bold">${totalExpenses.toFixed(2)}</p>
+        </div>
+        <div className="bg-green-100 text-green-800 p-4 rounded shadow">
+          <p className="font-semibold">Net Balance</p>
+          <p className="text-xl font-bold">${netBalance.toFixed(2)}</p>
+        </div>
+      </div>
+
+      {/* Charts */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white p-4 rounded shadow">
           <h3 className="text-lg font-semibold mb-2 text-center">
