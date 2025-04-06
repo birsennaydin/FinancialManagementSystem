@@ -47,7 +47,20 @@ SmartSpend is a full-stack personal finance management platform designed for ind
 ---
 
 ## 📂 Project Structure
-client/ └── src/ ├── pages/ ├── components/ ├── layouts/ ├── context/ └── App.jsx, main.jsx, index.css, ... server/ ├── controllers/ ├── routes/ ├── middleware/ ├── models/ └── server.js
+
+client/
+└── src/ 
+    ├── pages/ 
+    ├── components/ 
+    ├── layouts/ 
+    ├── context/ 
+    └── App.jsx, main.jsx, index.css, 
+server/ 
+    ├── controllers/ 
+    ├── routes/ 
+    ├── middleware/ 
+    ├── models/ 
+    └── server.js
 
 ## 📦 Installation
 
