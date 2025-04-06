@@ -20,7 +20,6 @@ export default function Login() {
       
           setToken(res.data.token);
           setUser(res.data.user?.name || email); // varsa ismi göster yoksa email
-          alert('Login successful!');
           navigate('/dashboard');
         } catch (err) {
           alert('Login failed');
