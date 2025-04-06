@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Expenses() {
+  const [categories, setCategories] = useState([]);
+  const [budgets, setBudgets] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+
   const [formData, setFormData] = useState({
     category: "",
     amount: "",
@@ -10,18 +14,36 @@ export default function Expenses() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
-
-  const [expenses, setExpenses] = useState([]);
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
 
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("http://localhost:5050/api/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  };
+
+  const fetchBudgets = async () => {
+    try {
+      const res = await axios.get("http://localhost:5050/api/budgets", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBudgets(res.data);
+    } catch (err) {
+      console.error("Failed to fetch budgets", err);
+    }
+  };
+
   const fetchExpenses = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/expenses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setExpenses(res.data);
     } catch (err) {
@@ -30,22 +52,22 @@ export default function Expenses() {
   };
 
   useEffect(() => {
+    fetchCategories();
+    fetchBudgets();
     fetchExpenses();
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5050/api/expenses/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setMessage("Expense deleted ✅");
       fetchExpenses();
@@ -58,33 +80,41 @@ export default function Expenses() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const currentMonth = formData.date.slice(0, 7); // yyyy-mm
+    const matchingBudget = budgets.find(
+      (b) =>
+        b.category?._id === formData.category && b.month === currentMonth
+    );
+
+    const totalSpent = expenses
+      .filter(
+        (exp) =>
+          exp.category === formData.category &&
+          exp.date.slice(0, 7) === currentMonth &&
+          exp._id !== editingId
+      )
+      .reduce((sum, exp) => sum + exp.amount, 0);
+
+    const newAmount = Number(formData.amount);
+
+    if (matchingBudget && totalSpent + newAmount > matchingBudget.amount) {
+      setMessage("⚠️ You exceeded your budget for this category.");
+      return;
+    }
+
     try {
       if (isEditing && editingId) {
         await axios.put(
           `http://localhost:5050/api/expenses/${editingId}`,
-          {
-            ...formData,
-            amount: Number(formData.amount),
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { ...formData, amount: newAmount },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessage("Expense updated ✅");
       } else {
         await axios.post(
           "http://localhost:5050/api/expenses",
-          {
-            ...formData,
-            amount: Number(formData.amount),
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { ...formData, amount: newAmount },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessage("Expense saved successfully ✅");
       }
@@ -101,7 +131,9 @@ export default function Expenses() {
 
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-md rounded-md p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Add New Expense</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        {isEditing ? "Edit Expense" : "Add New Expense"}
+      </h2>
 
       {message && (
         <div className="mb-4 text-center text-sm text-blue-600">{message}</div>
@@ -111,15 +143,20 @@ export default function Expenses() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block font-semibold mb-1">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              placeholder="e.g. Groceries"
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
-            />
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block font-semibold mb-1">Amount</label>
@@ -156,12 +193,12 @@ export default function Expenses() {
         {isEditing && (
           <button
             type="button"
-            className="w-full mt-2 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition"
             onClick={() => {
               setIsEditing(false);
               setEditingId(null);
               setFormData({ category: "", amount: "", date: "" });
             }}
+            className="w-full mt-2 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition"
           >
             Cancel Editing
           </button>
@@ -189,7 +226,11 @@ export default function Expenses() {
             ) : (
               expenses.map((exp) => (
                 <tr key={exp._id} className="border-t">
-                  <td className="p-2 border">{exp.category}</td>
+                  <td className="p-2 border">
+                    {
+                        categories.find((cat) => cat._id === exp.category)?.name || "Unknown"
+                    }
+                </td>
                   <td className="p-2 border">${exp.amount.toFixed(2)}</td>
                   <td className="p-2 border">
                     {new Date(exp.date).toLocaleDateString()}
