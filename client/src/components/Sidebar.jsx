@@ -9,6 +9,7 @@ const Sidebar = () => {
     { path: "/dashboard/financial", label: "FinancialTips" },
     { path: "/dashboard/suggestions", label: "Suggestions" },
     { path: "/dashboard/reminder", label: "Reminder" }, 
+    { path: "/dashboard/userManagement", label: "UserManagement" },
   ];
 
   return (

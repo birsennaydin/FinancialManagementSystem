@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const axios = require('axios');
 
 const userRoutes = require('./routes/users');
+const userManagementRoutes = require('./routes/userManagement');
 const expenseRoutes = require('./routes/expenses');
 const dashboardRoutes = require('./routes/dashboard');
 const resourceRoutes = require('./routes/resources');
@@ -31,6 +32,7 @@ app.use('/api/budgets', budgetRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/suggestions', suggestionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/userManagement', userManagementRoutes);
 
 // Financial News Route (External API - Marketaux)
 app.get('/api/news', async (req, res) => {
