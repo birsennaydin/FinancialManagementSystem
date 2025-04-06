@@ -3,34 +3,43 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import DashboardLayout from './layouts/DashboardLayout.jsx'
-
-function Dashboard() {
-  return <h1 className="text-2xl font-bold">Welcome to the Dashboard</h1>
-}
-function Expenses() {
-  return <h1 className="text-xl">Expenses Page</h1>
-}
-function Budgets() {
-  return <h1 className="text-xl">Budgets Page</h1>
-}
+import Dashboard from "./pages/Dashboard";
+import Expenses from "./pages/Expenses";
+import Budgets from "./pages/Budgets";
+import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="expenses" element={<Expenses />} />
-          <Route path="budgets" element={<Budgets />} />
-        </Route>
+          <Route path="/dashboard" element={
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    }>
+      <Route index element={<Dashboard />} />
+      <Route path="expenses" element={
+        <ProtectedRoute>
+          <Expenses />
+        </ProtectedRoute>
+      } />
+      <Route path="budgets" element={
+        <ProtectedRoute>
+          <Budgets />
+        </ProtectedRoute>
+      } />
+    </Route>
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   </StrictMode>
 )

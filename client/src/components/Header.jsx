@@ -1,33 +1,26 @@
-// src/components/Header.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-function Header() {
+const Header = () => {
+  const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // token varsa
-    navigate("/login");
-  };
 
   return (
-    <header className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
-      <h1 className="text-xl font-bold text-gray-800">SmartSpend</h1>
-
+    <header className="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h1 className="text-xl font-bold">SmartSpend</h1>
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="text-gray-700 font-medium hover:text-blue-600"
+          className="font-semibold"
         >
-          Birsen Aydın ⌄
+          {user}
         </button>
 
         {dropdownOpen && (
-          <div className="absolute right-0 mt-2 w-36 bg-white border rounded-md shadow-lg z-10">
+          <div className="absolute right-0 mt-2 bg-white text-black rounded shadow z-10">
             <button
-              onClick={handleLogout}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              onClick={logout}
+              className="block w-full px-4 py-2 hover:bg-gray-200"
             >
               Logout
             </button>
@@ -36,6 +29,6 @@ function Header() {
       </div>
     </header>
   );
-}
+};
 
 export default Header;
