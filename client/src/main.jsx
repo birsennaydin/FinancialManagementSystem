@@ -10,6 +10,7 @@ import DashboardLayout from './layouts/DashboardLayout.jsx'
 import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
 import Budgets from "./pages/Budgets";
+import Category from "./pages/Category";
 import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')).render(
@@ -27,6 +28,11 @@ createRoot(document.getElementById('root')).render(
       </ProtectedRoute>
     }>
       <Route index element={<Dashboard />} />
+      <Route path="/dashboard/categories" element={
+        <ProtectedRoute>
+          <Category />
+        </ProtectedRoute>
+      } />
       <Route path="expenses" element={
         <ProtectedRoute>
           <Expenses />
