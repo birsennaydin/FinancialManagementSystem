@@ -8,6 +8,9 @@ export default function Expenses() {
     date: "",
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
   const [expenses, setExpenses] = useState([]);
   const [message, setMessage] = useState("");
 
@@ -45,7 +48,7 @@ export default function Expenses() {
         },
       });
       setMessage("Expense deleted ✅");
-      fetchExpenses(); // Listeyi güncelle
+      fetchExpenses();
     } catch (err) {
       console.error("Delete failed", err);
       setMessage("Failed to delete expense ❌");
@@ -56,25 +59,43 @@ export default function Expenses() {
     e.preventDefault();
 
     try {
-      await axios.post(
-        "http://localhost:5050/api/expenses",
-        {
-          ...formData,
-          amount: Number(formData.amount),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      if (isEditing && editingId) {
+        await axios.put(
+          `http://localhost:5050/api/expenses/${editingId}`,
+          {
+            ...formData,
+            amount: Number(formData.amount),
           },
-        }
-      );
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setMessage("Expense updated ✅");
+      } else {
+        await axios.post(
+          "http://localhost:5050/api/expenses",
+          {
+            ...formData,
+            amount: Number(formData.amount),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setMessage("Expense saved successfully ✅");
+      }
 
-      setMessage("Expense saved successfully ✅");
       setFormData({ category: "", amount: "", date: "" });
+      setIsEditing(false);
+      setEditingId(null);
       fetchExpenses();
     } catch (err) {
       console.error(err);
-      setMessage("Failed to save expense ❌");
+      setMessage("Failed to save/update expense ❌");
     }
   };
 
@@ -124,12 +145,27 @@ export default function Expenses() {
             />
           </div>
         </div>
+
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          Save Expense
+          {isEditing ? "Update Expense" : "Save Expense"}
         </button>
+
+        {isEditing && (
+          <button
+            type="button"
+            className="w-full mt-2 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition"
+            onClick={() => {
+              setIsEditing(false);
+              setEditingId(null);
+              setFormData({ category: "", amount: "", date: "" });
+            }}
+          >
+            Cancel Editing
+          </button>
+        )}
       </form>
 
       <h3 className="text-xl font-bold mb-2">My Expenses</h3>
@@ -146,7 +182,7 @@ export default function Expenses() {
           <tbody>
             {expenses.length === 0 ? (
               <tr>
-                <td colSpan="3" className="p-4 text-center">
+                <td colSpan="4" className="p-4 text-center">
                   No expenses found.
                 </td>
               </tr>
@@ -155,14 +191,32 @@ export default function Expenses() {
                 <tr key={exp._id} className="border-t">
                   <td className="p-2 border">{exp.category}</td>
                   <td className="p-2 border">${exp.amount.toFixed(2)}</td>
-                  <td className="p-2 border">{new Date(exp.date).toLocaleDateString()}</td>
                   <td className="p-2 border">
-                        <button
-                            onClick={() => handleDelete(exp._id)}
-                            className="text-red-600 hover:underline"
-                        >
-                            Delete
-                        </button>
+                    {new Date(exp.date).toLocaleDateString()}
+                  </td>
+                  <td className="p-2 border">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditingId(exp._id);
+                          setFormData({
+                            category: exp.category,
+                            amount: exp.amount,
+                            date: exp.date.split("T")[0],
+                          });
+                        }}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(exp._id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

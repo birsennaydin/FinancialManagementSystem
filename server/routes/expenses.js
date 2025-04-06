@@ -11,4 +11,6 @@ router.get('/', auth, expenseController.getExpenses);
 
 router.delete('/:id', auth, expenseController.deleteExpense);
 
+router.put('/:id', auth, expenseController.updateExpense);
+
 module.exports = router;

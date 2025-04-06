@@ -48,3 +48,25 @@ exports.deleteExpense = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Update a specific expense
+exports.updateExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category, amount, date } = req.body;
+
+    const updated = await Expense.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      { category, amount, date },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Expense not found or unauthorized" });
+    }
+
+    res.json({ message: "Expense updated successfully", expense: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
