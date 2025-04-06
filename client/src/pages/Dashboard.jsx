@@ -3,26 +3,33 @@ import axios from "axios";
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  BarElement,
   CategoryScale,
   LinearScale,
+  BarElement,
+  ArcElement,
   Tooltip,
   Legend,
-  ArcElement,
 } from "chart.js";
+import { CSVLink } from "react-csv";
 
-// Register necessary chart.js components
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [startMonth, setStartMonth] = useState("");
-  const [endMonth, setEndMonth] = useState("");
+  const [startMonth, setStartMonth] = useState("2025-02");
+  const [endMonth, setEndMonth] = useState("2025-04");
 
   const token = localStorage.getItem("token");
 
-  // Fetch all expenses from backend
+  // Fetch expenses
   const fetchExpenses = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/expenses", {
@@ -30,11 +37,11 @@ export default function Dashboard() {
       });
       setExpenses(res.data);
     } catch (err) {
-      console.error("Error fetching expenses", err);
+      console.error("Failed to fetch expenses", err);
     }
   };
 
-  // Fetch categories to map names in pie chart
+  // Fetch categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/categories", {
@@ -42,7 +49,7 @@ export default function Dashboard() {
       });
       setCategories(res.data);
     } catch (err) {
-      console.error("Error fetching categories", err);
+      console.error("Failed to fetch categories", err);
     }
   };
 
@@ -51,22 +58,20 @@ export default function Dashboard() {
     fetchCategories();
   }, []);
 
-  // Filter expenses by selected date range
-  const filteredExpenses = expenses.filter((exp) => {
-    const expMonth = exp.date.slice(0, 7); // format: YYYY-MM
-    return (
-      (!startMonth || expMonth >= startMonth) &&
-      (!endMonth || expMonth <= endMonth)
-    );
+  // Filter expenses based on selected date range
+  const filteredExpenses = expenses.filter((e) => {
+    const month = e.date.slice(0, 7);
+    return month >= startMonth && month <= endMonth;
   });
 
-  // Prepare data for bar chart: total expenses per month
+  // Group expenses by month
   const monthlyTotals = {};
-  filteredExpenses.forEach((exp) => {
-    const month = exp.date.slice(0, 7);
-    monthlyTotals[month] = (monthlyTotals[month] || 0) + exp.amount;
+  filteredExpenses.forEach((e) => {
+    const month = e.date.slice(0, 7);
+    monthlyTotals[month] = (monthlyTotals[month] || 0) + e.amount;
   });
 
+  // Prepare bar chart data
   const barData = {
     labels: Object.keys(monthlyTotals),
     datasets: [
@@ -74,74 +79,83 @@ export default function Dashboard() {
         label: "Monthly Expenses",
         data: Object.values(monthlyTotals),
         backgroundColor: "rgba(54, 162, 235, 0.5)",
-        borderRadius: 8,
       },
     ],
   };
 
-  // Prepare data for pie chart: total per category
+  // Group expenses by category
   const categoryTotals = {};
-  filteredExpenses.forEach((exp) => {
-    const categoryName =
-      categories.find((c) => c._id === exp.category)?.name || "Unknown";
-    categoryTotals[categoryName] = (categoryTotals[categoryName] || 0) + exp.amount;
+  filteredExpenses.forEach((e) => {
+    const cat = e.category;
+    categoryTotals[cat] = (categoryTotals[cat] || 0) + e.amount;
   });
 
+  // Map category IDs to names
+  const getCategoryName = (id) =>
+    categories.find((c) => c._id === id)?.name || id;
+
   const pieData = {
-    labels: Object.keys(categoryTotals),
+    labels: Object.keys(categoryTotals).map(getCategoryName),
     datasets: [
       {
         data: Object.values(categoryTotals),
-        backgroundColor: [
-          "#36A2EB",
-          "#4BC0C0",
-          "#FF6384",
-          "#FFCE56",
-          "#9966FF",
-          "#FF9F40",
-        ],
-        borderWidth: 1,
+        backgroundColor: ["#36A2EB", "#4BC0C0", "#FF6384", "#FFCE56", "#8E44AD"],
       },
     ],
   };
 
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-2xl font-bold text-center mb-6">Dashboard Overview</h2>
+  // Prepare data for CSV export
+  const csvData = filteredExpenses.map((exp) => ({
+    Category: getCategoryName(exp.category),
+    Amount: `$${exp.amount.toFixed(2)}`,
+    Date: new Date(exp.date).toLocaleDateString(),
+  }));
 
-      {/* Date range filter */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <label className="block text-sm font-semibold mb-1">From</label>
-          <input
-            type="month"
-            value={startMonth}
-            onChange={(e) => setStartMonth(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-semibold mb-1">To</label>
-          <input
-            type="month"
-            value={endMonth}
-            onChange={(e) => setEndMonth(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+  return (
+    <div className="max-w-6xl mx-auto p-4">
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Dashboard Overview
+      </h2>
+
+      <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4 mb-6">
+        <input
+          type="month"
+          value={startMonth}
+          onChange={(e) => setStartMonth(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <input
+          type="month"
+          value={endMonth}
+          onChange={(e) => setEndMonth(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <button
+          onClick={() => {}}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Filter
+        </button>
+        <CSVLink
+          data={csvData}
+          filename={`expenses_${startMonth}_to_${endMonth}.csv`}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Download CSV
+        </CSVLink>
       </div>
 
-      {/* Charts: Responsive layout with grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="bg-white rounded shadow p-4">
-          <h3 className="text-lg font-semibold text-center mb-2">Monthly Expenses</h3>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white p-4 rounded shadow">
+          <h3 className="text-lg font-semibold mb-2 text-center">
+            Monthly Expenses
+          </h3>
           <Bar data={barData} />
         </div>
-
-        {/* Pie Chart */}
-        <div className="bg-white rounded shadow p-4">
-          <h3 className="text-lg font-semibold text-center mb-2">Category Distribution</h3>
+        <div className="bg-white p-4 rounded shadow">
+          <h3 className="text-lg font-semibold mb-2 text-center">
+            Category Distribution
+          </h3>
           <Pie data={pieData} />
         </div>
       </div>
