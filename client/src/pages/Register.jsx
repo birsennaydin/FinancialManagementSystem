@@ -30,8 +30,9 @@ export default function Register() {
         <h2 className="text-2xl font-bold mb-6 text-center">SmartSpend Register</h2>
         <form onSubmit={handleRegister}>
           <div className="mb-4">
-            <label className="block mb-1 font-medium">Name</label>
+            <label htmlFor="name" className="block mb-1 font-medium">Name</label>
             <input
+              id="name"
               type="text"
               className="w-full border rounded px-3 py-2"
               value={name}
@@ -40,8 +41,9 @@ export default function Register() {
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-1 font-medium">Email</label>
+            <label htmlFor="email" className="block mb-1 font-medium">Email</label>
             <input
+              id="email"
               type="email"
               className="w-full border rounded px-3 py-2"
               value={email}
@@ -50,8 +52,9 @@ export default function Register() {
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-1 font-medium">Password</label>
+            <label htmlFor="password" className="block mb-1 font-medium">Password</label>
             <input
+              id="password"
               type="password"
               className="w-full border rounded px-3 py-2"
               value={password}
