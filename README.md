@@ -47,6 +47,9 @@ SmartSpend is a full-stack personal finance management platform designed for ind
 ---
 
 ## 📂 Project Structure
+**File Structure**
+
+```bash
 
 client/
 └── src/ 
@@ -62,6 +65,7 @@ server/
     ├── models/ 
     └── server.js
 
+```
 ## 📦 Installation
 
 1. **Clone the repository**
