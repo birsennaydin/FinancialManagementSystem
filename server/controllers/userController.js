@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-    console.log("Register isteği geldi:", req.body);
   try {
     const { name, email, password } = req.body;
     const hashed = await bcrypt.hash(password, 10);
@@ -16,10 +15,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    console.log("Came to login request:", req.body);
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    console.log("USER CREDENTIALS", user);
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
