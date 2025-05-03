@@ -25,9 +25,17 @@ export default function Login() {
         password,
       });
 
-      setToken(res.data.token);
-      setUser(res.data.user?.name || email); // varsa ismi göster yoksa email
-      navigate('/dashboard');
+      if (res.data?.token) {
+        setToken(res.data.token);
+        setUser(res.data.user?.name || email);
+
+        // Wait briefly to ensure context updates before navigation
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
+      } else {
+        setError('Login failed: No token received.');
+      }
     } catch (err) {
       setError('Login failed');
     }
