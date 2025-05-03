@@ -62,16 +62,6 @@ server/
     ├── models/ 
     └── server.js
 
----
-
-## Test User's Credentials
-
-To explore the application quickly without registering a new account, you can use the following test credentials:
-
-Email: test@gmail.com
-Password: Ms123mL1
-
----
 ## 📦 Installation
 
 1. **Clone the repository**
